@@ -11,6 +11,7 @@
 namespace Behat\Mink;
 
 use Behat\Mink\Driver\DriverInterface;
+use Behat\Mink\Element\ElementFactory;
 use Behat\Mink\Selector\SelectorsHandler;
 use Behat\Mink\Element\DocumentElement;
 
@@ -27,22 +28,31 @@ class Session
     private $uniqueId;
 
     /**
+     * @var Element\ElementFactory
+     */
+    private $elementFactory;
+
+    /**
      * Initializes session.
      *
-     * @param DriverInterface  $driver
-     * @param SelectorsHandler $selectorsHandler
+     * @param DriverInterface       $driver
+     * @param SelectorsHandler|null $selectorsHandler
+     * @param ElementFactory|null   $elementFactory
      */
-    public function __construct(DriverInterface $driver, SelectorsHandler $selectorsHandler = null)
+    public function __construct(DriverInterface $driver, SelectorsHandler $selectorsHandler = null, ElementFactory $elementFactory = null)
     {
-        $driver->setSession($this);
-
         if (null === $selectorsHandler) {
             $selectorsHandler = new SelectorsHandler();
         }
 
+        if (null === $elementFactory) {
+            $elementFactory = new ElementFactory();
+        }
+
         $this->driver           = $driver;
         $this->selectorsHandler = $selectorsHandler;
-        $this->page             = new DocumentElement($driver, $selectorsHandler);
+        $this->elementFactory   = $elementFactory;
+        $this->page             = new DocumentElement($driver, $selectorsHandler, $elementFactory);
         $this->uniqueId         = uniqid('mink_session_');
     }
 
